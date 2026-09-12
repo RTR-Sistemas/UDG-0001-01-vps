@@ -19,6 +19,15 @@ name: Deploy para VPS
 # Se SSH_PRIVATE_KEY existir, usa a chave e ignora a senha. Assim voce comeca
 # pela senha e migra para chave depois, sem mexer neste arquivo de novo.
 #
+# O VPS NAO PRECISA DE NENHUMA CONFIGURACAO MANUAL
+#
+#   O servidor nunca fala com o GitHub. Quem publica e este workflow, que se
+#   conecta nele e manda os arquivos por rsync. Trocar de repositorio e
+#   invisivel para o servidor.
+#
+#   Este arquivo tambem cria as pastas de destino antes de enviar, entao nem
+#   isso precisa ser feito na mao la dentro.
+#
 # O QUE MUDOU EM RELACAO AO WORKFLOW ANTIGO
 #
 #   1. A SENHA DE ROOT E O IP estavam escritos aqui dentro, em texto claro,
@@ -170,6 +179,13 @@ jobs:
             ENVIAR() { sshpass -e rsync -az --no-perms --no-owner --no-group -e "$SSH_CMD" "$@"; }
             EXECUTAR() { sshpass -e ssh -o StrictHostKeyChecking=yes "$ALVO" "$1"; }
           fi
+
+          # Garante que as pastas de destino existem. Sem isto, o rsync
+          # falharia se /opt/undoing/netlify/functions/ ainda nao existisse
+          # no servidor - e essa era a unica coisa que exigiria mexer no VPS
+          # na mao. Agora o proprio deploy resolve.
+          echo "--- preparando as pastas no servidor"
+          EXECUTAR "mkdir -p /opt/undoing/dist /opt/undoing/public /opt/undoing/netlify/functions"
 
           echo "--- site (dist/)"
           ENVIAR --delete dist/ "$ALVO:/opt/undoing/dist/"

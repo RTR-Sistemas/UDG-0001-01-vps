@@ -87,6 +87,9 @@ DEPLOY/supabase-docker.tar.gz
 backups/
 backup/
 _modelo-repo-novo/
+"Claude outputs"/
+Claude outputs/
+CRIAR-REPO-NOVO.log
 supabase/.temp/
 logs
 *.log
