@@ -1,0 +1,19 @@
+=========================================================
+  PASTA DO APK - Undoing App
+=========================================================
+
+COLOQUE O ARQUIVO "undoing-app.apk" NESTA PASTA.
+
+Como gerar o APK:
+1. Abra o Android Studio
+2. File → Open → selecione a pasta "android" do projeto
+3. Aguarde o Gradle Sync terminar
+4. Build → Build Bundle(s) / APK(s) → Build APK(s)
+5. O APK gerado estará em:
+   android\app\build\outputs\apk\debug\app-debug.apk
+
+6. Renomeie para "undoing-app.apk" e cole nesta pasta.
+
+Depois, execute o script "gerar-apk.bat" na raiz do projeto 
+para copiar automaticamente.
+=========================================================

@@ -1,0 +1,19 @@
+[Unit]
+Description=UndoinG - Netlify Functions runtime (wrapper)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/undoing
+EnvironmentFile=/opt/undoing/.env
+Environment=NODE_ENV=production
+ExecStart=/usr/bin/node --import tsx /opt/undoing/deploy/server.mjs
+Restart=always
+RestartSec=3
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

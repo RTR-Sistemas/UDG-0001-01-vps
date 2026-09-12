@@ -1,0 +1,18 @@
+/sw.js
+  Cache-Control: no-cache, no-store, must-revalidate
+  Service-Worker-Allowed: /
+
+/manifest.webmanifest
+  Cache-Control: no-cache, no-store, must-revalidate
+  Content-Type: application/manifest+json; charset=utf-8
+
+/workbox-*.js
+  Cache-Control: no-cache, no-store, must-revalidate
+
+/build.json
+  Cache-Control: no-cache, no-store, must-revalidate
+
+/apk/*.apk
+  Content-Type: application/vnd.android.package-archive
+  Content-Disposition: attachment
+  Cache-Control: no-cache, no-store, must-revalidate

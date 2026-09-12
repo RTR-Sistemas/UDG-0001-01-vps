@@ -1,0 +1,7 @@
+# Servidor de voz Edresson/Coqui — dependências
+# Python 3.10 ou 3.11 (o Coqui TTS ainda não suporta 3.12+ de forma estável).
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+coqui-tts==0.25.1
+torch==2.5.1
+soundfile==0.12.1

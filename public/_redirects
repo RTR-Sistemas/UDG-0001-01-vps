@@ -1,0 +1,11 @@
+/privacidade         /privacidade.html    200
+/termos              /termos.html         200
+/moderacao           /moderacao.html      200
+/sobre               /sobre.html          200
+/selo-dourado        /selo-dourado.html   200
+/chave-seguranca     /chave-seguranca.html 200
+/recursos            /recursos.html       200
+/manifest.webmanifest  /manifest.webmanifest  200
+/workbox-*            /workbox-:splat        200
+/assets/*             /assets/:splat         200
+/*                    /index.html            200

@@ -1,0 +1,299 @@
+/* ==========================================================================
+   UndoinG Admin — folha de estilo
+
+   Paleta de dados validada com o verificador de acessibilidade (seis checagens:
+   faixa de luminosidade, piso de croma, separação para daltonismo, piso de
+   visão normal, contraste). Ordem fixa: azul, amarelo, aqua, vermelho — nessa
+   ordem porque vermelho e amarelo lado a lado reprovam no modo escuro.
+
+   Cada gráfico tem UMA série só, então a cor nunca é a única forma de saber o
+   que é o quê: o título nomeia, e o último valor aparece escrito.
+   ========================================================================== */
+
+:root {
+  color-scheme: light;
+
+  --fundo:        #f6f5f3;
+  --superficie:   #fcfcfb;
+  --superficie-2: #f0efec;
+  --borda:        #e2e0da;
+  --borda-forte:  #cbc8bf;
+
+  --texto:        #1a1917;
+  --texto-2:      #52514e;
+  --texto-3:      #85837c;
+
+  --marca:        #7C3AED;
+  --marca-suave:  #f1eafe;
+
+  --s1: #2a78d6;  /* azul     — usuários  */
+  --s2: #eda100;  /* amarelo  — posts     */
+  --s3: #1baf7a;  /* aqua     — mensagens */
+  --s4: #e34948;  /* vermelho — erros     */
+
+  --bom:     #1baf7a;
+  --atencao: #eda100;
+  --grave:   #e34948;
+
+  --sombra: 0 1px 2px rgba(0,0,0,.04), 0 4px 12px rgba(0,0,0,.05);
+  --raio: 12px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-tema="claro"]) {
+    color-scheme: dark;
+    --fundo:        #131312;
+    --superficie:   #1a1a19;
+    --superficie-2: #232322;
+    --borda:        #2e2e2c;
+    --borda-forte:  #45443f;
+
+    --texto:        #f2f1ec;
+    --texto-2:      #c3c2b7;
+    --texto-3:      #8d8b82;
+
+    --marca:        #a780ff;
+    --marca-suave:  #241a3d;
+
+    --s1: #3987e5;
+    --s2: #c98500;
+    --s3: #199e70;
+    --s4: #e66767;
+
+    --bom:     #199e70;
+    --atencao: #c98500;
+    --grave:   #e66767;
+
+    --sombra: 0 1px 2px rgba(0,0,0,.3), 0 4px 14px rgba(0,0,0,.35);
+  }
+}
+
+:root[data-tema="escuro"] {
+  color-scheme: dark;
+  --fundo: #131312; --superficie: #1a1a19; --superficie-2: #232322;
+  --borda: #2e2e2c; --borda-forte: #45443f;
+  --texto: #f2f1ec; --texto-2: #c3c2b7; --texto-3: #8d8b82;
+  --marca: #a780ff; --marca-suave: #241a3d;
+  --s1: #3987e5; --s2: #c98500; --s3: #199e70; --s4: #e66767;
+  --bom: #199e70; --atencao: #c98500; --grave: #e66767;
+  --sombra: 0 1px 2px rgba(0,0,0,.3), 0 4px 14px rgba(0,0,0,.35);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--fundo);
+  color: var(--texto);
+  font: 14px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+button, input, select, textarea { font: inherit; color: inherit; }
+
+/* ---------- Estrutura ---------- */
+
+.app { display: grid; grid-template-columns: 232px 1fr; min-height: 100vh; }
+
+.lateral {
+  background: var(--superficie);
+  border-right: 1px solid var(--borda);
+  padding: 18px 12px;
+  display: flex; flex-direction: column; gap: 4px;
+  position: sticky; top: 0; height: 100vh; overflow-y: auto;
+}
+
+.marca {
+  display: flex; align-items: center; gap: 10px;
+  padding: 4px 10px 18px;
+}
+.marca-ponto {
+  width: 30px; height: 30px; border-radius: 9px;
+  background: linear-gradient(140deg, var(--marca), #5b21b6);
+  display: grid; place-items: center;
+  color: #fff; font-weight: 700; font-size: 14px;
+}
+.marca-nome { font-weight: 650; letter-spacing: -.01em; }
+.marca-sub { font-size: 11px; color: var(--texto-3); }
+
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 10px; border-radius: 9px;
+  color: var(--texto-2); cursor: pointer;
+  border: none; background: none; width: 100%; text-align: left;
+}
+.nav-item:hover { background: var(--superficie-2); color: var(--texto); }
+.nav-item[aria-current="page"] { background: var(--marca-suave); color: var(--marca); font-weight: 600; }
+.nav-item .contador {
+  margin-left: auto; font-size: 11px; font-variant-numeric: tabular-nums;
+  background: var(--grave); color: #fff; border-radius: 999px; padding: 1px 7px;
+}
+.nav-sep { margin: 14px 10px 6px; font-size: 11px; text-transform: uppercase;
+  letter-spacing: .06em; color: var(--texto-3); }
+
+.principal { padding: 24px 28px 60px; max-width: 1400px; }
+
+.cabecalho {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 16px; margin-bottom: 22px; flex-wrap: wrap;
+}
+.cabecalho h1 { font-size: 1.35rem; margin: 0; letter-spacing: -.015em; }
+.cabecalho p { margin: 2px 0 0; color: var(--texto-2); font-size: 13px; }
+
+/* ---------- Indicador de tempo real ---------- */
+
+.aovivo {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-size: 12px; color: var(--texto-2);
+  background: var(--superficie); border: 1px solid var(--borda);
+  padding: 5px 11px; border-radius: 999px;
+}
+.pulso {
+  width: 7px; height: 7px; border-radius: 50%; background: var(--bom);
+  box-shadow: 0 0 0 0 color-mix(in srgb, var(--bom) 60%, transparent);
+  animation: pulsar 2.4s ease-out infinite;
+}
+.pulso[data-estado="off"] { background: var(--texto-3); animation: none; }
+@keyframes pulsar {
+  0%   { box-shadow: 0 0 0 0 color-mix(in srgb, var(--bom) 55%, transparent); }
+  70%  { box-shadow: 0 0 0 7px transparent; }
+  100% { box-shadow: 0 0 0 0 transparent; }
+}
+@media (prefers-reduced-motion: reduce) { .pulso { animation: none; } }
+
+/* ---------- Cartões ---------- */
+
+.grade { display: grid; gap: 14px; }
+.grade-4 { grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); }
+.grade-2 { grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); }
+
+.cartao {
+  background: var(--superficie);
+  border: 1px solid var(--borda);
+  border-radius: var(--raio);
+  padding: 16px 18px;
+  box-shadow: var(--sombra);
+}
+.cartao h2 { margin: 0 0 2px; font-size: 13px; font-weight: 600; color: var(--texto-2); }
+.cartao .legenda { font-size: 12px; color: var(--texto-3); margin: 0 0 14px; }
+
+.numero {
+  font-size: 2rem; font-weight: 640; letter-spacing: -.02em;
+  font-variant-numeric: tabular-nums; line-height: 1.1;
+}
+.numero small { font-size: .95rem; font-weight: 500; color: var(--texto-3); margin-left: 6px; }
+.delta { font-size: 12px; font-variant-numeric: tabular-nums; }
+.delta[data-sinal="sobe"] { color: var(--bom); }
+.delta[data-sinal="desce"] { color: var(--grave); }
+.delta[data-sinal="igual"] { color: var(--texto-3); }
+
+.tile { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; }
+.tile .spark { flex: 0 0 84px; height: 34px; }
+
+/* ---------- Gráficos ---------- */
+
+.grafico { width: 100%; height: 190px; display: block; overflow: visible; }
+.grafico .eixo { stroke: var(--borda); stroke-width: 1; }
+.grafico .grade-linha { stroke: var(--borda); stroke-width: 1; stroke-dasharray: 2 4; }
+.grafico .rotulo { fill: var(--texto-3); font-size: 10px; }
+.grafico .rotulo-valor { fill: var(--texto); font-size: 11px; font-weight: 600;
+  font-variant-numeric: tabular-nums; }
+.grafico .marcador { stroke: var(--superficie); stroke-width: 2; }
+
+.dica {
+  position: fixed; z-index: 50; pointer-events: none;
+  background: var(--superficie); border: 1px solid var(--borda-forte);
+  border-radius: 8px; padding: 7px 10px; box-shadow: var(--sombra);
+  font-size: 12px; white-space: nowrap;
+}
+.dica b { font-variant-numeric: tabular-nums; }
+.dica[hidden] { display: none; }
+
+/* ---------- Tabelas ---------- */
+
+.tabela-wrap { overflow-x: auto; border-radius: var(--raio); }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--borda); vertical-align: top; }
+th { color: var(--texto-3); font-weight: 600; font-size: 11px;
+  text-transform: uppercase; letter-spacing: .05em; }
+tbody tr:hover { background: var(--superficie-2); }
+td.num { font-variant-numeric: tabular-nums; text-align: right; }
+.mono { font-family: ui-monospace, "Cascadia Code", Consolas, monospace; font-size: 12px; }
+.trunc { max-width: 420px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* ---------- Etiquetas ---------- */
+
+.etiqueta {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 999px;
+  border: 1px solid var(--borda-forte); color: var(--texto-2);
+}
+.etiqueta[data-estado="bom"]     { color: var(--bom);     border-color: color-mix(in srgb, var(--bom) 40%, transparent); }
+.etiqueta[data-estado="atencao"] { color: var(--atencao); border-color: color-mix(in srgb, var(--atencao) 40%, transparent); }
+.etiqueta[data-estado="grave"]   { color: var(--grave);   border-color: color-mix(in srgb, var(--grave) 40%, transparent); }
+
+/* ---------- Botões e campos ---------- */
+
+.botao {
+  border: 1px solid var(--borda-forte); background: var(--superficie);
+  padding: 7px 13px; border-radius: 8px; cursor: pointer; font-size: 13px;
+}
+.botao:hover { background: var(--superficie-2); }
+.botao[data-tipo="primario"] { background: var(--marca); border-color: var(--marca); color: #fff; }
+.botao[data-tipo="primario"]:hover { filter: brightness(1.08); }
+.botao[data-tipo="perigo"] { color: var(--grave); border-color: color-mix(in srgb, var(--grave) 45%, transparent); }
+.botao[data-tipo="perigo"]:hover { background: color-mix(in srgb, var(--grave) 12%, transparent); }
+.botao:disabled { opacity: .5; cursor: not-allowed; }
+.botao-mini { padding: 3px 9px; font-size: 12px; }
+
+.campo {
+  width: 100%; padding: 9px 12px; border-radius: 9px;
+  border: 1px solid var(--borda-forte); background: var(--superficie);
+}
+.campo:focus { outline: 2px solid var(--marca); outline-offset: 1px; }
+label { display: block; font-size: 12px; color: var(--texto-2); margin: 12px 0 5px; font-weight: 500; }
+
+.barra-acoes { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 14px; }
+
+/* ---------- Telas de entrada ---------- */
+
+.entrada { min-height: 100vh; display: grid; place-items: center; padding: 24px; }
+.entrada-caixa { width: 100%; max-width: 440px; }
+.entrada-caixa .cartao { padding: 26px 28px; }
+.entrada h1 { font-size: 1.25rem; margin: 0 0 4px; }
+.entrada .legenda { color: var(--texto-2); font-size: 13px; margin: 0 0 6px; }
+
+.aviso {
+  border-left: 3px solid var(--atencao);
+  background: color-mix(in srgb, var(--atencao) 8%, transparent);
+  padding: 10px 13px; border-radius: 0 8px 8px 0; font-size: 12.5px;
+  color: var(--texto-2); margin: 14px 0;
+}
+.erro-msg { color: var(--grave); font-size: 13px; margin-top: 10px; min-height: 18px; }
+
+.vazio { color: var(--texto-3); font-size: 13px; padding: 22px; text-align: center; }
+
+/* ---------- Painel lateral de detalhe ---------- */
+
+.gaveta {
+  position: fixed; inset: 0 0 0 auto; width: min(520px, 92vw);
+  background: var(--superficie); border-left: 1px solid var(--borda);
+  box-shadow: -8px 0 30px rgba(0,0,0,.15); padding: 22px 24px;
+  overflow-y: auto; z-index: 40;
+}
+.gaveta[hidden] { display: none; }
+.gaveta-fundo { position: fixed; inset: 0; background: rgba(0,0,0,.28); z-index: 39; }
+.gaveta-fundo[hidden] { display: none; }
+
+.par { display: flex; justify-content: space-between; gap: 12px; padding: 7px 0;
+  border-bottom: 1px solid var(--borda); font-size: 13px; }
+.par span:first-child { color: var(--texto-3); }
+.par span:last-child { text-align: right; word-break: break-word; }
+
+@media (max-width: 860px) {
+  .app { grid-template-columns: 1fr; }
+  .lateral { position: static; height: auto; flex-direction: row; flex-wrap: wrap; }
+  .marca { width: 100%; padding-bottom: 8px; }
+  .nav-sep { display: none; }
+  .principal { padding: 18px; }
+}

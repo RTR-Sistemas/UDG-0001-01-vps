@@ -1,0 +1,122 @@
+# ============================================================================
+#  UndoinG - .gitignore do repositorio limpo
+#
+#  Escrito do zero em 12/09/2026, junto com a migracao para o repositorio
+#  novo. O repositorio antigo carregava ~78 MB de duplicatas e, mais grave,
+#  a senha de root do VPS no historico. Nada disso vem para ca.
+# ============================================================================
+
+# --- Dependencias e saida de build -----------------------------------------
+node_modules
+dist
+dist-ssr
+build
+*.local
+*.tsbuildinfo
+.netlify
+
+# Modelos do face-api: 13 MB recriados a cada `npm install` pelo
+# scripts/copy-face-models.mjs (postinstall). Versionar seria guardar
+# binario regeneravel.
+public/models/
+
+# --- Segredos ---------------------------------------------------------------
+# Regra geral: nenhum .env entra.
+.env
+.env.*
+
+# EXCECAO, de proposito: .env.production so tem valores PUBLICOS - a URL do
+# Supabase, a chave anon e o App ID do Agora. Os tres terminam dentro do
+# JavaScript que qualquer visitante baixa, entao esconde-los nao protege
+# nada. E o build PRECISA deles: sem este arquivo o site sobe sem conseguir
+# falar com o banco.
+# O que protege o banco e o RLS, nao o sigilo da chave anon.
+# A service_role key e a chave VAPID privada NUNCA entram aqui - elas vivem
+# em /opt/undoing/.env no servidor.
+!.env.production
+!.env.example
+
+# --- Credenciais de acesso ao servidor (nunca commitar) --------------------
+DEPLOY/vps.local.ps1
+DEPLOY/.env.server
+DEPLOY/env-extra.txt
+DEPLOY/run_sql.cjs
+DEPLOY/run_sql.json
+ACESSO_*.md
+VPS_ACCESS.md
+dados-vps.md
+NETLIFY_ENV_VARS.md
+*.pem
+*.ppk
+id_rsa*
+id_ed25519*
+android/app/*-firebase-adminsdk-*.json
+android/app/google-services.json
+
+# --- Arquivos gerados dentro do DEPLOY --------------------------------------
+# functions ja empacotadas. Regenere com:
+#   .\DEPLOY\deploy_vps.ps1 -Functions -Rebundle -RestartService
+DEPLOY/functions-build/
+DEPLOY/netlify/
+# copias do que ja esta em public/
+DEPLOY/models/
+DEPLOY/icons/
+DEPLOY/sounds/
+DEPLOY/assets/
+DEPLOY/apk/
+DEPLOY/*.png
+DEPLOY/*.ico
+DEPLOY/*.svg
+DEPLOY/*.mp4
+DEPLOY/index.html
+DEPLOY/404.html
+DEPLOY/manifest.webmanifest
+DEPLOY/robots.txt
+DEPLOY/_headers
+DEPLOY/_redirects
+DEPLOY/sw.js
+DEPLOY/sw-push-handler.js
+DEPLOY/TERMOS_DE_USO.md
+DEPLOY/POLITICA_DE_PRIVACIDADE.md
+DEPLOY/supabase-docker.tar.gz
+
+# --- Copias de trabalho e temporarios ---------------------------------------
+*.bak
+*.zip
+*.sql.bak
+backups/
+backup/
+_modelo-repo-novo/
+supabase/.temp/
+logs
+*.log
+npm-debug.log*
+vite.config.ts.timestamp-*
+
+# --- Ferramentas locais (contem segredo, so rodam na sua maquina) ----------
+adm-localhost/
+bots/
+undoing-bots/
+localhost/
+ADMIN/dados/
+ADMIN/UndoinG-Admin.exe
+ADMIN/node_modules/
+seguranca/
+UDG-GO/
+
+# --- Editor e sistema operacional -------------------------------------------
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+Thumbs.db
+Desktop.ini
+*.suo
+*.sw?
+
+# --- Diagnostico solto ------------------------------------------------------
+tsclog*.txt
+tsc_errors*.txt
+settings.json
+check_db.py
+fix_light_theme*.py

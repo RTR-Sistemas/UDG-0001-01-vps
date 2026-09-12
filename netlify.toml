@@ -1,0 +1,22 @@
+# =============================================================================
+# ARQUIVO APOSENTADO EM 06/09/2026.
+#
+# O UndoinG NÃO usa mais a Netlify. O site é servido pelo nginx do VPS
+# (Hostinger) e as funções rodam no runtime próprio (deploy/server.mjs, na
+# porta 8788), publicadas por "git push" através do GitHub Actions.
+#
+# Tudo o que estava aqui foi levado para onde realmente vale:
+#   • cabeçalhos de segurança (HSTS, CSP, Permissions-Policy, COOP, X-Frame)
+#       -> DEPLOY/undoing.conf   (copiar para /etc/nginx/sites-available/undoing)
+#   • redirecionamentos e regras de cache
+#       -> DEPLOY/undoing.conf
+#   • diretório de funções e empacotamento
+#       -> DEPLOY/deploy_vps.ps1 e o serviço "undoing" (systemd) no VPS
+#
+# ATENÇÃO: enquanto este arquivo existia, os cabeçalhos de segurança estavam
+# escritos APENAS aqui — ou seja, a produção rodava sem HSTS e sem CSP, porque
+# a Netlify não estava no caminho. Isso foi corrigido no nginx.
+#
+# O arquivo foi mantido vazio (e não apagado) para deixar registro da mudança.
+# Pode ser removido do repositório quando você quiser.
+# =============================================================================

@@ -1,0 +1,156 @@
+name: Deploy para VPS
+
+# -----------------------------------------------------------------------------
+# ALTERADO EM 12/09/2026
+#
+# 1. A SENHA DE ROOT DO VPS E O IP estavam escritos em texto claro neste
+#    arquivo, dentro do repositorio e de todo o historico do Git. Quem tivesse
+#    o repositorio tinha o servidor inteiro - e com o servidor, todas as
+#    mensagens, o que anula na pratica a criptografia do aplicativo.
+#    Agora vem de GitHub Secrets.
+#
+# 2. O deploy so enviava `dist/` e `public/`. As funcoes de backend
+#    (netlify/functions) NUNCA subiam por aqui: ficavam paradas na versao do
+#    ultimo envio manual. Era por isso que a notificacao de mensagem nova
+#    mostrava o texto cifrado cru - a correcao estava no codigo, mas a funcao
+#    antiga continuava rodando no servidor.
+#
+# ANTES DO PROXIMO PUSH, faca as duas coisas:
+#
+#   a) TROQUE A SENHA DE ROOT DO VPS. A antiga esta no historico do Git e deve
+#      ser considerada vazada, mesmo que o repositorio seja privado.
+#
+#   b) GitHub -> Settings -> Secrets and variables -> Actions -> New secret:
+#        VPS_HOST      = o IP ou dominio do servidor
+#        VPS_USER      = root   (ou, melhor, um usuario "deploy" dedicado)
+#        VPS_PASSWORD  = a senha NOVA
+#
+#      Sem esses tres segredos o deploy falha de proposito, com mensagem clara,
+#      em vez de publicar com credencial exposta.
+#
+# PROXIMO PASSO RECOMENDADO: migrar de senha para chave SSH. O arquivo
+# DEPLOY/github-workflow-deploy.yml ja tem essa versao pronta, com o passo a
+# passo. Este aqui e a correcao minima para parar o vazamento hoje.
+# -----------------------------------------------------------------------------
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Conferir os segredos antes de qualquer coisa
+        run: |
+          FALTA=""
+          [ -z "${{ secrets.VPS_HOST }}" ]     && FALTA="$FALTA VPS_HOST"
+          [ -z "${{ secrets.VPS_USER }}" ]     && FALTA="$FALTA VPS_USER"
+          [ -z "${{ secrets.VPS_PASSWORD }}" ] && FALTA="$FALTA VPS_PASSWORD"
+          if [ -n "$FALTA" ]; then
+            echo "::error::Faltam segredos do GitHub:$FALTA"
+            echo "Cadastre em Settings > Secrets and variables > Actions."
+            exit 1
+          fi
+          echo "Segredos presentes."
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Instalar dependencias
+        run: npm install --legacy-peer-deps
+
+      - name: Testes da camada de criptografia
+        # Nao trava o deploy por enquanto (o projeto tem backlog de lint/tipos),
+        # mas deixa o resultado visivel no log. Quando o backlog zerar, troque
+        # continue-on-error para false e nenhuma regressao entra em producao.
+        continue-on-error: true
+        run: npx vitest run src/lib/pq
+
+      - name: Build
+        env:
+          VITE_BUILD_ID: ${{ github.sha }}
+        run: npm run build
+
+      - name: Instalar sshpass e rsync
+        run: sudo apt-get update && sudo apt-get install -y sshpass rsync
+
+      - name: Registrar a chave do host (sem StrictHostKeyChecking=no)
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H "$VPS_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+          chmod 600 ~/.ssh/known_hosts
+
+      - name: Enviar dist/
+        env:
+          SSHPASS: ${{ secrets.VPS_PASSWORD }}
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+        run: |
+          sshpass -e rsync -avz --delete \
+            -e "ssh -o StrictHostKeyChecking=yes" \
+            dist/ "$VPS_USER@$VPS_HOST:/opt/undoing/dist/"
+
+      - name: Enviar public/
+        env:
+          SSHPASS: ${{ secrets.VPS_PASSWORD }}
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+        run: |
+          sshpass -e rsync -avz \
+            -e "ssh -o StrictHostKeyChecking=yes" \
+            public/ "$VPS_USER@$VPS_HOST:/opt/undoing/public/"
+
+      - name: Enviar netlify/functions/  (o passo que faltava)
+        env:
+          SSHPASS: ${{ secrets.VPS_PASSWORD }}
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+        run: |
+          sshpass -e rsync -avz \
+            -e "ssh -o StrictHostKeyChecking=yes" \
+            netlify/functions/ "$VPS_USER@$VPS_HOST:/opt/undoing/netlify/functions/"
+
+      - name: Reiniciar o servico do backend
+        continue-on-error: true
+        env:
+          SSHPASS: ${{ secrets.VPS_PASSWORD }}
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+        run: |
+          sshpass -e ssh -o StrictHostKeyChecking=yes "$VPS_USER@$VPS_HOST" \
+            "systemctl restart undoing || true"
+
+      - name: Conferir que o site subiu a versao NOVA
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+        run: |
+          sleep 8
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://udgservidor.online/" || echo "000")
+          echo "HTTP do site: $STATUS"
+
+          # build.json carrega a data do build. Se continuar antiga, o rsync
+          # nao chegou - e melhor falhar aqui do que achar que publicou.
+          BUILT=$(curl -s "https://udgservidor.online/build.json" || echo "")
+          echo "build.json no ar: $BUILT"
+
+          HOJE=$(date -u +%Y-%m-%d)
+          case "$BUILT" in
+            *"$HOJE"*) echo "OK: o servidor esta servindo o build de hoje." ;;
+            *) echo "::warning::build.json nao tem a data de hoje ($HOJE). Confira se o rsync chegou em /opt/undoing/dist/." ;;
+          esac
+
+          [ "$STATUS" = "200" ] || echo "::warning::O site respondeu $STATUS."

@@ -1,0 +1,16 @@
+project_id = "ipmldkprqdhybedhpgmt"
+
+[functions.process-votes]
+verify_jwt = false
+
+# ─── Dublagem / tradução do chat ──────────────────────────────────────────────
+# verify_jwt = true (padrão): a chamada precisa levar a anon key ou o token do
+# usuário no header Authorization. O front-end (src/lib/backendApi.ts) já faz isso.
+[functions.voice-clone-translate]
+verify_jwt = false
+
+[functions.huggingface-dubbing]
+verify_jwt = false
+
+[functions.correct-text]
+verify_jwt = false
